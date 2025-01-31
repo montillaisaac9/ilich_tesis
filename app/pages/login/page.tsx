@@ -3,34 +3,36 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useAuth } from '@/app/context/authContex';
+import { useAuthStore } from '@/app/stores/authStore'; // Cambiar import
 import Image from 'next/image';
 import Link from 'next/link';
-
-type LoginError = {
-  message: string;
-};
+import { signIn } from 'next-auth/react'; // Añadir NextAuth
 
 export default function LoginPage() {
   const router = useRouter();
-  const { area, login } = useAuth();
-
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<LoginError | null>(null);
+  const area = useAuthStore((state) => state.area); // Obtener área del store
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await login(username, password);
+      // Usar NextAuth para el login
+      const result = await signIn('credentials', {
+        username,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
       router.push(`/dashboard?area=${area}`);
     } catch (err) {
-      if (err instanceof Error) {
-        setError({ message: err.message });
-      } else {
-        setError({ message: 'Ocurrió un error inesperado' });
-      }
+      setError(err instanceof Error ? err.message : 'Error desconocido');
     }
   };
 
@@ -51,7 +53,7 @@ export default function LoginPage() {
         </div>
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
-            {error.message}
+            <span>{error}</span>
           </div>
         )}
 
