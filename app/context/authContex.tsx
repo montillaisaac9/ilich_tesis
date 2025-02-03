@@ -1,44 +1,41 @@
 // context/AuthContext.tsx
-'use client'
+'use client';
 
 import { createContext, useContext, useState } from 'react';
 
 type AuthContextType = {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  setAuth: (isAuth: boolean )=> void
   logout: () => void;
   area: string | null;
-  setArea: (area: string) => void;
+  areaId: number | null; // Nuevo campo para el ID de la coordinación
+  setArea: (area: string, areaId: number) => void; // Actualizado para incluir el ID
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [area, setArea] = useState<string | null>(null);
-
-  const login = async (username: string, password: string) => {
-    // Simula una autenticación (reemplaza con tu lógica real)
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
-      setIsAuthenticated(true);
-    } else {
-      throw new Error('Credenciales inválidas');
-    }
-  };
+  const [area, setAreaState] = useState<string | null>(null);
+  const [areaId, setAreaId] = useState<number | null>(null); // Nuevo estado para el ID
 
   const logout = () => {
     setIsAuthenticated(false);
-    setArea(null); // Limpia el área al cerrar sesión
+    setAreaState(null);
+    setAreaId(null);
   };
 
+  const setArea = (area: string, areaId: number) => {
+    setAreaId(areaId)
+    setAreaState(area);
+  };
+  
+  const setAuth = (auth: boolean)=>{
+    setIsAuthenticated(auth)
+  }
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, area, setArea }}>
+    <AuthContext.Provider value={{ isAuthenticated, setAuth,  logout, area, areaId, setArea }}>
       {children}
     </AuthContext.Provider>
   );
