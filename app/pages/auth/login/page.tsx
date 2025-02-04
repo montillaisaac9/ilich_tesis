@@ -23,7 +23,7 @@ export default function LoginPage() {
 
     try {
       if (!areaId) {
-        throw new Error('Debes seleccionar una coordinación');
+        setError('Debes seleccionar una coordinación');
       }
 
       // Usar axios en lugar de fetch
@@ -43,13 +43,13 @@ export default function LoginPage() {
         if (areaId != null && area != ''){
           router.push(redirectUrl1)
         }        
-        if (area == 'admin' && areaId == 10){
+        if (area == 'ADMIN' && areaId == 10){
           router.push(redirectUrl2)
         }        
       } else console.log(data.message)
     } catch (err: any) {
       console.log(err)
-      
+      if (err.status == 401) setError("Coordinación no válida para este usuario");
       if (err.status == 404) setError("Credenciales Incorrectas");
       if (err.status == 500) setError("'Error en el servidor")
     }
@@ -66,8 +66,7 @@ export default function LoginPage() {
             height={100}
             className="rounded-full justify-self-center"
           />
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">One Guilardo</h1>
-          <p className="text-xl text-blue-600 font-semibold">Bismarcko</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Ore Guárico</h1>
           <p className="mt-4 text-gray-500">
  {area ? `Área: ${area}` : "Por favor seleccione una coordinación"}
 </p>

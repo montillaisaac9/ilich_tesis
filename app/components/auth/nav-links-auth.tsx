@@ -16,18 +16,17 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/context/authContex'; // Asegúrate de que la ruta sea correcta
 
 const links = [
-  { id: 1, name: '001-1 Dirección General', area: 'direccion-general', icon: BuildingOfficeIcon },
-  { id: 2, name: '002-2 Gestión Administrativa', area: 'gestion-administrativa', icon: DocumentTextIcon },
-  { id: 3, name: '003-3 Partidos Políticos', area: 'partidos-politicos', icon: UsersIcon },
-  { id: 4, name: '004-4 Producción y Logística', area: 'produccion-logistica', icon: TruckIcon },
-  { id: 5, name: '005-5 Junta Regional', area: 'junta-regional', icon: ClipboardDocumentIcon },
-  { id: 6, name: '006-6 Tecnología de la Información', area: 'tecnologia-informacion', icon: ComputerDesktopIcon },
-  { id: 7, name: '007-7 Registro Civil', area: 'registro-civil', icon: IdentificationIcon },
-  { id: 8, name: '008-8 Registro Electoral', area: 'registro-electoral', icon: ShieldCheckIcon },
-  { id: 9, name: '009-9 Vigilante', area: 'vigilante', icon: UserIcon },
-  { id: 10, name: '010-1 ADMIN', area: 'admin', icon: UserIcon },
+  { id: 1, name: '001-1 Dirección General', area: 'Dirección General', icon: BuildingOfficeIcon },
+  { id: 2, name: '002-2 Gestión Administrativa', area: 'Gestión Administrativa', icon: DocumentTextIcon },
+  { id: 3, name: '003-3 Partidos Políticos', area: 'Partidos Políticos', icon: UsersIcon },
+  { id: 4, name: '004-4 Producción y Logística', area: 'Producción y Logística', icon: TruckIcon },
+  { id: 5, name: '005-5 Junta Regional', area: 'Junta Regional', icon: ClipboardDocumentIcon },
+  { id: 6, name: '006-6 Tecnología de la Información', area: 'Tecnología de la Información', icon: ComputerDesktopIcon },
+  { id: 7, name: '007-7 Registro Civil', area: 'Registro Civil', icon: IdentificationIcon },
+  { id: 8, name: '008-8 Registro Electoral', area: 'Registro Electoral', icon: ShieldCheckIcon },
+  { id: 9, name: '009-9 Vigilante', area: 'Vigilante', icon: UserIcon },
+  { id: 10, name: '010-1 ADMIN', area: 'ADMIN', icon: UserIcon },
 ];
-
 export default function NavLinks() {
   const pathname = usePathname();
   const { setArea } = useAuth(); // Usa el AuthContext para manejar el área

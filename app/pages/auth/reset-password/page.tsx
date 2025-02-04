@@ -66,8 +66,7 @@ const ResetPassword = () => {
             height={100}
             className="rounded-full mx-auto"
           />
-          <h1 className="text-3xl font-bold text-gray-800 mt-4 mb-2">One Guilardo</h1>
-          <p className="text-xl text-blue-600 font-semibold">Bismarcko</p>
+           <h1 className="text-3xl font-bold text-gray-800 mb-2">Ore Guárico</h1>
         </div>
 
         {error && (
