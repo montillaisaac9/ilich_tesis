@@ -68,10 +68,10 @@ export default function DocsPage() {
                 <h3 className="text-2xl font-semibold text-white mb-2">{doc.title}</h3>
                 <p className="text-gray-200 flex-grow mb-4">{doc.description}</p>
                 <a
-                  href={`/docs/${doc.file}`}
-                  download
-                  className="mt-auto w-full bg-blue-700 hover:bg-blue-900 text-white px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
-                >
+  href={`/docs/${doc.file}`} // ← Esto está bien (Next.js sirve archivos estáticos desde /public)
+  download={doc.file} // Asegúrate de que el archivo se descargue con el nombre correcto
+  className="mt-auto w-full bg-blue-700 hover:bg-blue-900 text-white px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
+>
                   <span>Descargar</span>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path 
