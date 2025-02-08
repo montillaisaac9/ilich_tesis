@@ -1,4 +1,7 @@
+'use client'
+
 import Head from "next/head";
+import axios from "axios";
 
 const BASE_URL = "http://localhost:3000/"; // ⚠️ Cambia esto por la URL real donde están alojados los documentos
 
@@ -33,19 +36,25 @@ const documents = [
     file: "FORMATO REVISION TECNICA.docx",
     description: "Checklist para evaluación técnica de activos"
   },
-  { 
-    title: "Transferencia de Bienes",
-    file: "FORMATO TRANSFERENCIA DE BIENES.docx",
-    description: "Formulario para proceso de transferencia entre áreas"
-  },
-  { 
-    title: "Sábana Caracas 2024",
-    file: "SABANA CARACAS 2024.xlsx",
-    description: "Plantilla Excel para inventario general de bienes 2024"
-  }
 ];
 
 export default function DocsPage() {
+  // Función para descargar archivos mediante axios
+  const handleDownload = async (endpoint: string, filename: string) => {
+    try {
+      const response = await axios.get(endpoint, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 to-sky-400">
       <Head>
@@ -56,10 +65,37 @@ export default function DocsPage() {
         <h1 className="text-5xl font-bold text-white mb-4 animate-fade-in-down">
           Formatos y Documentos Oficiales
         </h1>
-        <p className="text-xl text-purple-200">Recursos para gestión de bienes institucionales</p>
+        <p className="text-xl text-purple-200">
+          Recursos para gestión de bienes institucionales
+        </p>
       </header>
 
       <main className="container mx-auto px-4 pb-16">
+        {/* Sección de descargas especiales con axios */}
+        <section className="mb-8">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Descargar Formatos Especiales
+          </h2>
+          <p className="text-gray-200 mb-4">
+            Haz clic en los botones a continuación para descargar los formatos especiales:
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => handleDownload("/api/export/sabana", "Sabana_Caracas.xlsx")}
+              className="bg-green-600 hover:bg-green-800 text-white px-6 py-3 rounded-lg transition-colors"
+            >
+              Descargar Sábana Caracas 2025
+            </button>
+            <button
+              onClick={() => handleDownload("/api/export/bienes", "Bienes_Desincorporados.xlsx")}
+              className="bg-green-600 hover:bg-green-800 text-white px-6 py-3 rounded-lg transition-colors"
+            >
+              Descargar Bienes Desincorporados 2025
+            </button>
+          </div>
+        </section>
+
+        {/* Sección de documentos estáticos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {documents.map((doc, index) => {
             const fileUrl = `${BASE_URL}/docs/${doc.file}`;
@@ -71,8 +107,7 @@ export default function DocsPage() {
                 <h3 className="text-2xl font-semibold text-white mb-2">{doc.title}</h3>
                 <p className="text-gray-200 mb-4">{doc.description}</p>
 
-
-                {/* Botón de descarga */}
+                {/* Botón de descarga estático */}
                 <a
                   href={fileUrl}
                   download={doc.file}
