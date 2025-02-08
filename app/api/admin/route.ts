@@ -7,6 +7,7 @@ export async function GET() {
   try {
     // Obtener todas las notificaciones, ordenadas por fecha (descendente)
     const notifications = await prisma.notificaciones.findMany({
+      where: {estado: 'Pendiente'},
       orderBy: { fecha_creacion: 'desc' }
     });
 

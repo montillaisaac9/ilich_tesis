@@ -10,7 +10,7 @@ interface Notificacion {
   descripcion: string;
   fecha_notificacion: string;
   estado: string;
-  id_bien: number;
+  id_bienes: number;
   id_coordinacion_destino?: number;
   id_coordinacion_origen?: number;
 }
@@ -20,7 +20,7 @@ export default function NotificacionesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<{ type: 'delete' | 'transfer'; notification: Notificacion } | null>(null);
+  const [notification, setNotification] = useState< Notificacion | null>(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -48,50 +48,41 @@ export default function NotificacionesPage() {
   };
 
   const handleAction = async () => {
-    if (!selectedAction?.notification) return;
+    if (!notification) return;
     try {
-      console.log(selectedAction?.notification)
-      const { notification, type } = selectedAction;
-      if (type === 'delete') {
-        await axios.post('/api/bienes/delete', { assetId: notification.id_bien },  {
+      if (notification.tipo_operacion === 'delete' && notification.id_bienes != null) {
+        await axios.post('/api/bienes/delete', { assetId: notification.id_bienes },  {
           headers: { 'Content-Type': 'application/json' }
         });
-      } else if (type === 'transfer') {
-        await axios.post('/api/bienes/transfer', { assetId: notification.id_bien, destinoId: notification.id_coordinacion_destino ?? 0 }, {
+      } else if (notification.tipo_operacion === 'transferencia' && notification.id_bienes != null && notification.id_coordinacion_destino != null) {
+        await axios.post('/api/bienes/transfer', { assetId: notification.id_bienes, destinoId: notification.id_coordinacion_destino ?? 0 }, {
           headers: { 'Content-Type': 'application/json' }
         });
       }
       await markNotificationReviewed(notification.id_notificacion, 'resuelto');
-      setNotifications((prev) => prev.filter((n) => n.id_notificacion !== notification.id_notificacion));
+      setNotifications((prev) => prev.filter((n) => n.id_notificacion !== notification.id_bienes));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error en la operación');
     } finally {
       setShowConfirm(false);
-      setSelectedAction(null);
+      setNotification(null);
     }
   };
 
-  const handleReject = async (noti: Notificacion) => {
-    try {
-      await axios.put(`/api/notificaciones/${noti.id_notificacion}/rechazar`);
-      setNotifications((prev) => prev.filter((n) => n.id_notificacion !== noti.id_notificacion));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al rechazar');
-    }
-  };
+
 
   const ConfirmDialog = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg max-w-md w-full">
         <h3 className="text-xl font-bold mb-4">
-          Confirmar {selectedAction?.type === 'delete' ? 'Eliminación' : 'Transferencia'}
+          Confirmar {notification?.tipo_operacion === 'delete' ? 'Eliminación' : 'Transferencia'}
         </h3>
         <p className="mb-4">
-          ¿Estás seguro de querer {selectedAction?.type === 'delete' ? 'eliminar' : 'transferir'} este bien?
+          ¿Estás seguro de querer {notification?.tipo_operacion === 'delete' ? 'eliminar' : 'transferir'} este bien?
         </p>
         <div className="flex gap-4 justify-end">
-          <button onClick={() => { setShowConfirm(false); setSelectedAction(null); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
-          <button onClick={handleAction} className={`px-4 py-2 text-white rounded ${selectedAction?.type === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}>Confirmar</button>
+          <button onClick={() => { setShowConfirm(false); setNotification(null); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
+          <button onClick={handleAction} className={`px-4 py-2 text-white rounded ${notification?.tipo_operacion === 'eliminacion' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}>Confirmar</button>
         </div>
       </div>
     </div>
@@ -118,9 +109,9 @@ export default function NotificacionesPage() {
                       <p className="text-gray-800">{noti.descripcion}</p>
                     </div>
                     <div className="flex gap-2 ml-4">
-                      {noti.tipo_operacion === 'eliminacion' && <button onClick={() => { setSelectedAction({ type: 'delete', notification: noti }); setShowConfirm(true); }} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar bien"><TrashIcon className="h-5 w-5" /></button>}
-                      {noti.tipo_operacion === 'transferencia' && <button onClick={() => { setSelectedAction({ type: 'transfer', notification: noti }); setShowConfirm(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Aprobar transferencia"><TruckIcon className="h-5 w-5" /></button>}
-                      <button onClick={() => handleReject(noti)} className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Rechazar"><XMarkIcon className="h-5 w-5" /></button>
+                      {noti.tipo_operacion === 'eliminacion' && <button onClick={() => { setNotification(noti); setShowConfirm(true); }} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar bien"><TrashIcon className="h-5 w-5" /></button>}
+                      {noti.tipo_operacion === 'transferencia' && <button onClick={() => { setNotification(noti); setShowConfirm(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Aprobar transferencia"><TruckIcon className="h-5 w-5" /></button>}
+                      <button  className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg" title="Rechazar"><XMarkIcon className="h-5 w-5" /></button>
                     </div>
                   </div>
                 </div>
@@ -128,7 +119,7 @@ export default function NotificacionesPage() {
             </div>}
         </div>
       </main>
-      {showConfirm && selectedAction && <ConfirmDialog />}
+      {showConfirm && notification && <ConfirmDialog />}
     </div>
   );
 }

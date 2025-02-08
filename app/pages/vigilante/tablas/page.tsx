@@ -164,7 +164,7 @@ const BienesTable: React.FC = () => {
 
   const handleEditar = (id: number) => {
     setBien(id)
-    router.push('/pages/dashboard/editar')
+    router.push('/pages/vigilante/editar')
   };
 
   const handleTransferir = (id: number) => {

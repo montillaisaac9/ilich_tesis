@@ -80,11 +80,16 @@ export default function SideNav() {
     }
   };
 
+  const goToFile = ()=>{
+    router.push("/pages/admin")
+  }
+
   return (
     <>
       <div className="flex h-full flex-col px-3 py-4 md:px-2">
         <div className="w-32 text-white md:w-40 mb-4">
           <Image
+            onClick={goToFile}
             src="/img/logo.png"
             alt="Logo"
             width={300}

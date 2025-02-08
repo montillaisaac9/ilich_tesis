@@ -1,4 +1,3 @@
-// app/pages/login/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -6,9 +5,8 @@ import { useState } from 'react';
 import { useAuth } from '@/app/context/authContex';
 import Image from 'next/image';
 import Link from 'next/link';
-import axios from 'axios'; // Importar axios
-import {EyeSlashIcon, EyeIcon,} from '@heroicons/react/24/outline';
-
+import axios from 'axios';
+import { EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,15 +16,30 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Array de coordinaciones usando solo id y nombre
+  const coordinations = [
+    { id: 1, name: '001-1 Dirección General', area: 'Dirección General'},
+    { id: 2, name: '002-2 Gestión Administrativa', area: 'Gestión Administrativa'},
+    { id: 3, name: '003-3 Partidos Políticos', area: 'Partidos Políticos'},
+    { id: 4, name: '004-4 Producción y Logística', area: 'Producción y Logística'},
+    { id: 5, name: '005-5 Junta Regional', area: 'Junta Regional'},
+    { id: 6, name: '006-6 Tecnología de la Información', area: 'Tecnología de la Información'},
+    { id: 7, name: '007-7 Registro Civil', area: 'Registro Civil'},
+    { id: 8, name: '008-8 Registro Electoral', area: 'Registro Electoral'},
+    { id: 9, name: '009-9 Vigilante', area: 'Vigilante'},
+    { id: 10, name: '010-1 ADMIN', area: 'ADMIN'},
+  ];
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       if (!areaId) {
         setError('Debes seleccionar una coordinación');
+        return;
       }
 
-      // Usar axios en lugar de fetch
+      // Usar axios para la petición
       const response = await axios.post('/api/auth/login', {
         username,
         password,
@@ -35,28 +48,35 @@ export default function LoginPage() {
 
       const data = response.data;
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         setArea(`${area}`, areaId);
-        const redirectUrl1 = `/pages/dashboard`
-        const redirectUrl2 = `/pages/admin`
-        setAuth(true) 
-        if (areaId != null && area != ''){
-          router.push(redirectUrl1)
-        }        
-        if (area == 'ADMIN' && areaId == 10){
-          router.push(redirectUrl2)
-        }        
-      } else console.log(data.message)
+        console.log(area)
+        const redirectUrl1 = `/pages/dashboard`;
+        const redirectUrl2 = `/pages/admin`;
+        const redirectUr13 = `/pages/vigilante`;
+        setAuth(true);
+        if (areaId != null && area !== '') {
+          router.push(redirectUrl1);
+        }
+        if (area === '010-1 ADMIN' && areaId === 10) {
+          router.push(redirectUrl2);
+        }
+        if (area === '009-9 Vigilante' && areaId === 9) {
+          router.push(redirectUr13);
+        }
+      } else {
+        console.log(data.message);
+      }
     } catch (err: any) {
-      console.log(err)
-      if (err.status == 401) setError("Coordinación no válida para este usuario");
-      if (err.status == 404) setError("Credenciales Incorrectas");
-      if (err.status == 500) setError("'Error en el servidor")
+      console.log(err);
+      if (err.status === 401) setError("Coordinación no válida para este usuario");
+      if (err.status === 404) setError("Credenciales Incorrectas");
+      if (err.status === 500) setError("Error en el servidor");
     }
   };
 
   return (
-    <div className="min-h-screen w-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen w-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
           <Image
@@ -68,15 +88,39 @@ export default function LoginPage() {
           />
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Ore Guárico</h1>
           <p className="mt-4 text-gray-500">
- {area ? `Área: ${area}` : "Por favor seleccione una coordinación"}
-</p>
-
+            {area ? `Área: ${area}` : "Por favor seleccione una coordinación"}
+          </p>
         </div>
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
             <span>{error}</span>
           </div>
         )}
+
+        {/* Select de Coordinación (solo id y nombre) */}
+        <div className="mb-8">
+          <select
+            onChange={(e) => {
+              const selectedId = Number(e.target.value);
+              const selectedCoord = coordinations.find(coord => coord.id === selectedId);
+              if (selectedCoord) {
+                // Actualiza el área y su id en el contexto
+                setArea(selectedCoord.name, selectedCoord.id);
+              }
+            }}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Seleccione una coordinación
+            </option>
+            {coordinations.map((coord) => (
+              <option key={coord.id} value={coord.id}>
+                {coord.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -91,26 +135,26 @@ export default function LoginPage() {
           </div>
 
           <div className="relative w-full">
-      <input
-        type={showPassword ? "text" : "password"}
-        placeholder="Contraseña"
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button
-        type="button"
-        className="absolute inset-y-0 right-3 flex items-center text-gray-500"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? (
-          <EyeSlashIcon className="w-5 h-5" />
-        ) : (
-          <EyeIcon className="w-5 h-5" />
-        )}
-      </button>
-    </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Contraseña"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="w-5 h-5" />
+              ) : (
+                <EyeIcon className="w-5 h-5" />
+              )}
+            </button>
+          </div>
 
           <button
             type="submit"

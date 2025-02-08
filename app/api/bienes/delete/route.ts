@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     // Obtener el cuerpo de la solicitud
+    console.log(req.json)
     const { assetId } = await req.json();
 
     // Validar que se haya enviado el assetId

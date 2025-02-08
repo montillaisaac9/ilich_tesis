@@ -41,7 +41,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Actualizar el bien para asignarle la nueva coordinación
+  console.log(`asset: ${assetId} y destino ${destinoId}`)
+
     const updatedAsset = await prisma.bienes.update({
       where: { id_bienes: assetId },
       data: { id_coordinacion: Number(destinoId) },

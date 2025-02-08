@@ -33,16 +33,6 @@ const documents = [
     file: "FORMATO REVISION TECNICA.docx",
     description: "Checklist para evaluación técnica de activos"
   },
-  { 
-    title: "Transferencia de Bienes",
-    file: "FORMATO TRANSFERENCIA DE BIENES.docx",
-    description: "Formulario para proceso de transferencia entre áreas"
-  },
-  { 
-    title: "Sábana Caracas 2024",
-    file: "SABANA CARACAS 2024.xlsx",
-    description: "Plantilla Excel para inventario general de bienes 2024"
-  }
 ];
 
 export default function DocsPage() {
@@ -63,6 +53,7 @@ export default function DocsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {documents.map((doc, index) => {
             const fileUrl = `${BASE_URL}/docs/${doc.file}`;
+
             return (
               <div 
                 key={index}
@@ -70,7 +61,6 @@ export default function DocsPage() {
               >
                 <h3 className="text-2xl font-semibold text-white mb-2">{doc.title}</h3>
                 <p className="text-gray-200 mb-4">{doc.description}</p>
-
 
                 {/* Botón de descarga */}
                 <a
