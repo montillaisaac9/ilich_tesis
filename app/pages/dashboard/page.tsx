@@ -79,7 +79,7 @@ const coordinaciones: CoordinationWithIcon[] = [
 
 interface Bien {
   id_bienes: number;
-  tipoBien: 'bienes' | 'bienes_transitorio';
+  tipo_bien: 'bienes' | 'bienes_transitorio';
   numero_inventario: string;
   nombre_bien: string;
   nombre_empleado: string;
@@ -95,7 +95,7 @@ const BienesTable: React.FC = () => {
   const [bienes, setBienes] = useState<Bien[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedTipoBien, setSelectedTipoBien] = useState<'bienes' | 'bienes_transitorio'>('bienes');
+  const [selectedtipo_bien, setSelectedtipo_bien] = useState<'bienes' | 'bienes_transitorio'>('bienes');
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [selectedCoordinacion, setSelectedCoordinacion] = useState<number | null>(null);
   const [currentAssetId, setCurrentAssetId] = useState<number | null>(null);
@@ -124,13 +124,13 @@ const BienesTable: React.FC = () => {
     );
   };
 
-  const fetchBienes = async (page: number, tipoBien: string) => {
+  const fetchBienes = async (page: number, tipo_bien: string) => {
     setLoading(true);
     try {
       const response = await axios.post(`/api/bienes`, {
         page,
         limit: 10,
-        tipoBien,
+        tipo_bien,
         id_coordinacion: `${areaId}` 
       },{
         headers: {
@@ -149,11 +149,11 @@ const BienesTable: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchBienes(page, selectedTipoBien);
-  }, [page, selectedTipoBien, areaId]);
+    fetchBienes(page, selectedtipo_bien);
+  }, [page, selectedtipo_bien, areaId]);
 
-  const handleTipoBienChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTipoBien(e.target.value as 'bienes' | 'bienes_transitorio');
+  const handletipo_bienChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedtipo_bien(e.target.value as 'bienes' | 'bienes_transitorio');
     setPage(1);
   };
 
@@ -173,7 +173,6 @@ const BienesTable: React.FC = () => {
   }
   const handleConfirmTransfer = async () => {
 
-    alert(`asset: ${currentAssetId} coordinacion: ${selectedCoordinacion}`)
     if (!currentAssetId || !selectedCoordinacion) return;
   
     setLoading(true);
@@ -186,7 +185,7 @@ const BienesTable: React.FC = () => {
       });
   
       // Actualizar la lista de bienes después de la transferencia
-      await fetchBienes(page, selectedTipoBien);
+      await fetchBienes(page, selectedtipo_bien);
       
       // Resetear estados
       setIsTransferDialogOpen(false);
@@ -272,12 +271,10 @@ const BienesTable: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Bienes de la {area}</h1>
         <select
-          value={selectedTipoBien}
-          onChange={handleTipoBienChange}
-          className="p-2 border rounded-md"
-        >
+          value={selectedtipo_bien}
+          onChange={handletipo_bienChange}
+          className="p-2 border rounded-md">
           <option value="bienes">Bienes</option>
-          <option value="bienes_transitorio">Bienes Transitorios</option>
         </select>
       </div>
   
@@ -433,7 +430,7 @@ const BienesTable: React.FC = () => {
                 {filteredBienes.map((bien) => (
                   <tr key={bien.id_bienes}>
                     <td className="py-2 px-4 border-b text-center">
-                      {highlightText(bien.tipoBien === 'bienes' ? 'Bien' : 'Transitorio', searchQuery)}
+                      {highlightText(bien.tipo_bien === 'bienes' ? 'Bien' : 'Transitorio', searchQuery)}
                     </td>
                     <td className="py-2 px-4 border-b text-center">
                       {highlightText(bien.numero_inventario, searchQuery)}

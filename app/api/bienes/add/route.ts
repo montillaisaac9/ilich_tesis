@@ -17,6 +17,7 @@ export async function POST(request: Request): Promise<Response> {
         { status: 400 }
       );
     }
+    console.log(body)
 
     // Creación del nuevo bien en la base de datos
     const newBien = await prisma.bienes.create({
@@ -31,7 +32,7 @@ export async function POST(request: Request): Promise<Response> {
         codigo_color: body.codigo_color || null,
         estado_bien: body.estado_bien || null,
         fecha_ingreso: body.fecha_ingreso,
-        tipo_bien: body.tipoBien,
+        tipo_bien: body.tipo_bien,
         id_coordinacion: body.id_coordinacion,
         foto1: body.foto1 || null,
         foto2: body.foto2 || null
@@ -40,7 +41,7 @@ export async function POST(request: Request): Promise<Response> {
 
     return NextResponse.json(
       { 
-        message: `Bien ${body.tipoBien} creado exitosamente`,
+        message: `Bien ${body.tipo_bien} creado exitosamente`,
         data: newBien 
       },
       { status: 201 }

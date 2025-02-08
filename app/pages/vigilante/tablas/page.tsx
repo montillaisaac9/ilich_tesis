@@ -173,7 +173,6 @@ const BienesTable: React.FC = () => {
   }
   const handleConfirmTransfer = async () => {
 
-    alert(`asset: ${currentAssetId} coordinacion: ${selectedCoordinacion}`)
     if (!currentAssetId || !selectedCoordinacion) return;
   
     setLoading(true);
@@ -277,7 +276,6 @@ const BienesTable: React.FC = () => {
           className="p-2 border rounded-md"
         >
           <option value="bienes">Bienes</option>
-          <option value="bienes_transitorio">Bienes Transitorios</option>
         </select>
       </div>
   

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, FormEvent } from 'react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/authContex';
 
@@ -30,8 +30,14 @@ type FieldConfig = {
   placeholder?: string;
 };
 
+interface UploadResponse {
+  fileUrl: string;
+}
+
 const BienesForm: React.FC = () => {
-  const { areaId,idBien } = useAuth();
+  const { areaId, idBien } = useAuth();
+  const router = useRouter();
+  
   const [tipoBien, setTipoBien] = useState<string>('bienes');
   const [formData, setFormData] = useState<Bien>({
     id_bienes: '',
@@ -48,12 +54,13 @@ const BienesForm: React.FC = () => {
     id_coordinacion: areaId,
     fecha_ingreso: '',
   });
-
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const bienId = idBien; // Aquí debería ir el ID del bien a editar, por ejemplo desde la URL
+  const [uploadProgress, setUploadProgress] = useState<{ foto1: number; foto2: number }>({ foto1: 0, foto2: 0 });
+  const [uploading, setUploading] = useState<{ foto1: boolean; foto2: boolean }>({ foto1: false, foto2: false });
+
+  const bienId = idBien; // ID del bien a editar
 
   const commonFields: FieldConfig[] = [
     { 
@@ -119,7 +126,6 @@ const BienesForm: React.FC = () => {
       showFor: ['bienes'],
       placeholder: 'Especificaciones técnicas relevantes' 
     },
-    
     // Campos para Bienes Transitorios
     { 
       name: 'codigo_color', 
@@ -144,9 +150,9 @@ const BienesForm: React.FC = () => {
       if (!bienId) return; // Asegurar que el ID está definido
   
       try {
-        const response = await axios.post('/api/bienes/selecion', { id_bienes: bienId }); // Cambio aquí
-        setFormData(response.data.data); // Acceder a `data` dentro de la respuesta
-        console.log(response.data.data);
+        const response = await axios.post('/api/bienes/selecion', { id_bienes: bienId });
+        setFormData(response.data.data);
+        console.log("Datos obtenidos:", response.data.data);
       } catch (error) {
         console.error('Error al obtener los datos del bien:', error);
       } finally {
@@ -155,8 +161,7 @@ const BienesForm: React.FC = () => {
     };
   
     fetchBienData();
-  }, [bienId]); // Agregar `bienId` como dependencia para ejecutar solo cuando cambia
-  
+  }, [bienId]);
 
   const handleTipoBienChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTipoBien = event.target.value;
@@ -186,7 +191,6 @@ const BienesForm: React.FC = () => {
           {field.label}
           {field.required && <span className="text-red-500"> *</span>}
         </label>
-        
         {field.type === 'textarea' ? (
           <textarea
             id={field.name}
@@ -215,6 +219,36 @@ const BienesForm: React.FC = () => {
     );
   };
 
+  // Función para subir un único archivo (por foto) que retorna la URL
+  const handleFileUpload = async (file: File, field: 'foto1' | 'foto2'): Promise<void> => {
+    const fileData = new FormData();
+    fileData.append('image', file);
+    
+    setUploading(prev => ({ ...prev, [field]: true }));
+    setUploadProgress(prev => ({ ...prev, [field]: 0 }));
+  
+    try {
+      const response: AxiosResponse<UploadResponse> = await axios.post('/api/upload', fileData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent: ProgressEvent) => {
+          const { loaded, total } = progressEvent;
+          const percentCompleted = total ? Math.round((loaded * 100) / total) : 0;
+          setUploadProgress(prev => ({ ...prev, [field]: percentCompleted }));
+        }
+      });
+      if (response.status === 200) {
+        const fileUrl = response.data.fileUrl;
+        setFormData(prev => ({ ...prev, [field]: fileUrl }));
+      } else {
+        console.error('Error en la carga de la imagen:', response.data);
+      }
+    } catch (error) {
+      console.error('Error al subir la imagen:', error);
+    } finally {
+      setUploading(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -225,19 +259,11 @@ const BienesForm: React.FC = () => {
         return;
       }
   
-      setIsLoading(true);
       const payload = {
         ...formData,
         numero_inventario: String(formData.numero_inventario),
         id_coordinacion: areaId
       };
-  
-      // Verificar que haya al menos un campo para actualizar
-      const tieneDatos = Object.keys(payload).some(key => payload[key] !== null && payload[key] !== undefined);
-      if (!tieneDatos) {
-        alert("No hay datos válidos para actualizar");
-        return;
-      }
   
       const response = await axios.patch(`/api/bienes/editar`, payload, {
         headers: { 'Content-Type': 'application/json' }
@@ -257,15 +283,18 @@ const BienesForm: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-    <div className="border-t-4 border-blue-500 border-solid w-16 h-16 rounded-full animate-spin"></div>
-    <p className="text-white ml-4">Cargando...</p>
-  </div>
+    return (
+      <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="border-t-4 border-blue-500 border-solid w-16 h-16 rounded-full animate-spin"></div>
+        <p className="text-white ml-4">Cargando...</p>
+      </div>
+    );
   }
 
   return (
     <div className="flex items-center justify-center h-screen w-full">
-      <div className="max-w-2xl mx-auto w-screen overflow-auto p-6 bg-white shadow-md rounded-lg">
+      {/* Contenedor scrollable con altura máxima definida */}
+      <div className="max-w-2xl mx-auto w-screen overflow-auto p-6 bg-white shadow-md rounded-lg" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
         <h1 className="text-2xl font-bold mb-6 text-center">Formulario de Edición de Bienes</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -289,7 +318,7 @@ const BienesForm: React.FC = () => {
             {typeSpecificFields.map(renderField)}
           </div>
 
-          {/* Inputs de archivo deshabilitados */}
+          {/* Inputs para editar fotos */}
           <div>
             <label htmlFor="foto1" className="block text-sm font-medium text-gray-700">
               Foto 1
@@ -297,9 +326,20 @@ const BienesForm: React.FC = () => {
             <input
               type="file"
               id="foto1"
-              disabled
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  handleFileUpload(e.target.files[0], 'foto1');
+                }
+              }}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
+            {uploading.foto1 && (
+              <progress value={uploadProgress.foto1} max="100" className="w-full my-2"></progress>
+            )}
+            {formData.foto1 && (
+              <img src={formData.foto1} alt="Foto 1" className="mt-2 h-40 object-contain" />
+            )}
           </div>
 
           <div>
@@ -309,9 +349,20 @@ const BienesForm: React.FC = () => {
             <input
               type="file"
               id="foto2"
-              disabled
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-200 cursor-not-allowed"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  handleFileUpload(e.target.files[0], 'foto2');
+                }
+              }}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
+            {uploading.foto2 && (
+              <progress value={uploadProgress.foto2} max="100" className="w-full my-2"></progress>
+            )}
+            {formData.foto2 && (
+              <img src={formData.foto2} alt="Foto 2" className="mt-2 h-40 object-contain" />
+            )}
           </div>
 
           <button

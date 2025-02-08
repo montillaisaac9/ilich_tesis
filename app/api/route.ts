@@ -1,56 +1,88 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { bucket } from "@/libs/firebaseAdmin";
-import formidable, { File } from "formidable";
-import fs from "fs/promises";
+import type { Request, Response } from 'express';
+import multer, { FileFilterCallback } from 'multer';
+import path from 'path';
+import fs from 'fs';
 
-export const config = {
-  api: { bodyParser: false },
+// Extender Request para incluir la propiedad "file" que asigna Multer
+interface RequestWithFile extends Request {
+  file?: Express.Multer.File;
+}
+
+// Directorio donde se guardarán las imágenes
+const uploadDir = path.join(process.cwd(), 'public/uploads');
+
+// Crear la carpeta si no existe
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configuración de Multer para guardar imágenes (único archivo por solicitud)
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (_req, file, cb) => {
+    // Se agrega la fecha para generar nombres únicos, manteniendo la extensión original
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+// Filtro para permitir solo imágenes
+const fileFilter = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten archivos de imagen (JPEG, PNG, JPG, WEBP)'));
+  }
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, message: "Método no permitido" });
+// Limite de tamaño: 5MB
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+// Desactivar el bodyParser de Next.js para que Multer procese multipart/form-data
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export async function POST(req: Request, res: Response) {
+  // Solo se permite el método POST
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ error: `Método ${req.method} no permitido` });
   }
 
-  try {
-    const form = formidable({ multiples: false });
+  // Procesar la subida del archivo usando Multer
+  return new Promise<void>((resolve, reject) => {
+    upload.single('image')(req as RequestWithFile, res, (err: unknown) => {
+      if (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+        res.status(400).json({ error: errorMessage });
+        return reject(err);
+      }
 
-    const [, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve([fields, files]);
+      const file = (req as RequestWithFile).file;
+      if (!file) {
+        res.status(400).json({ error: 'No se subió ninguna imagen' });
+        return reject('No se subió ninguna imagen');
+      }
+
+      // Retornar la URL del archivo subido
+      res.status(200).json({
+        message: 'Imagen subida exitosamente',
+        fileUrl: `/uploads/${file.filename}`,
       });
+      resolve();
     });
-
-    if (!files.image) {
-      return res.status(400).json({ success: false, message: "No se subió ningún archivo" });
-    }
-
-    // Verificar si 'files.image' es un array y tomar el primer elemento en ese caso.
-    let file: File;
-    if (Array.isArray(files.image)) {
-      file = files.image[0];
-    } else {
-      file = files.image as File;
-    }
-
-    const filePath = file.filepath;
-    const filename = `${Date.now()}-${file.originalFilename}`;
-    const destination = `images/${filename}`;
-
-    await bucket.upload(filePath, {
-      destination,
-      public: true,
-      metadata: { cacheControl: "public, max-age=31536000" },
-    });
-
-    const url = `https://storage.googleapis.com/${bucket.name}/${destination}`;
-
-    // Eliminar el archivo temporal
-    await fs.unlink(filePath);
-
-    res.json({ success: true, url, filename });
-  } catch (error) {
-    res.status(500).json({ success: false, error: (error as Error).message });
-  }
+  });
 }

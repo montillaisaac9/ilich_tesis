@@ -136,7 +136,6 @@ const BienesTable: React.FC = () => {
           className="p-2 border rounded-md"
         >
           <option value="bienes">Bienes</option>
-          <option value="bienes_transitorio">Bienes Transitorios</option>
         </select>
       </div>
 
