@@ -254,7 +254,7 @@ const BienesForm: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center max-h-[calc(100vh-3rem)] w-full">
+    <div className="flex items-center justify-center max-h-[calc(100vh-3rem)] w-full  overflow-auto">
       <div className="max-w-2xl mx-auto w-screen overflow-auto p-6 bg-white shadow-md rounded-lg">
         <h1 className="text-2xl font-bold mb-6 text-center">Formulario de Creación de Bienes</h1>
 
