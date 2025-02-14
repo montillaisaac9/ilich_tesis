@@ -8,7 +8,7 @@ export async function POST(request: Request): Promise<Response> {
     const body = await request.json();
 
     // Validación de campos obligatorios
-    const requiredFields = ['numero_inventario', 'nombre_bien', 'fecha_ingreso', 'nombre_empleado'];
+    const requiredFields = ['numero_inventario', 'nombre_bien', 'nombre_empleado'];
     const missingFields = requiredFields.filter(field => !body[field]);
     
     if (missingFields.length > 0) {

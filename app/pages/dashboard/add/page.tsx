@@ -17,7 +17,7 @@ interface Bien {
   codigo_color?: string;
   estado_bien?: string;
   id_coordinacion?: number | null;
-  fecha_ingreso: string;
+  // Se elimina fecha_ingreso del formulario, ya que se generará automáticamente en el backend
   foto1?: string;
   foto2?: string;
 }
@@ -52,7 +52,7 @@ const BienesForm: React.FC = () => {
     codigo_color: '',
     estado_bien: '',
     id_coordinacion: areaId,
-    fecha_ingreso: '',
+    // Se elimina el campo fecha_ingreso de los datos del formulario
     foto1: '',
     foto2: ''
   });
@@ -82,12 +82,7 @@ const BienesForm: React.FC = () => {
       required: true,
       placeholder: 'Ej: Computadora portátil' 
     },
-    { 
-      name: 'fecha_ingreso', 
-      label: 'Fecha de Ingreso', 
-      type: 'date', 
-      required: true 
-    },
+    // Se quita el input para fecha_ingreso
   ];
 
   const typeSpecificFields: FieldConfig[] = [
@@ -254,7 +249,7 @@ const BienesForm: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center max-h-[calc(100vh-3rem)] w-full  overflow-auto">
+    <div className="flex items-center justify-center max-h-[calc(100vh-3rem)] w-full overflow-auto">
       <div className="max-w-2xl mx-auto w-screen overflow-auto p-6 bg-white shadow-md rounded-lg">
         <h1 className="text-2xl font-bold mb-6 text-center">Formulario de Creación de Bienes</h1>
 
@@ -270,6 +265,10 @@ const BienesForm: React.FC = () => {
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="bienes">Bienes Tecnológicos</option>
+              <option value="uso">Bien en Uso</option>
+              <option value="transitorio">Bien Transitorio</option>
+              <option value="resguardo">Bien en Resguardo</option>
+              <option value="desincorporado">Bien Desincorporado</option>
             </select>
           </div>
 

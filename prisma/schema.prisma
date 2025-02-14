@@ -20,7 +20,7 @@ model bienes {
   foto2             String?         @db.VarChar(100)
   id_coordinacion   Int?
   nombre_empleado   String?         @db.VarChar(100)
-  fecha_ingreso     String?         @db.VarChar(45)
+  fecha_ingreso     DateTime        @default(now())
   codigo_color      String?         @db.VarChar(45)
   tipo_bien         String?         @db.VarChar(15)
   coordinaciones    coordinaciones? @relation(fields: [id_coordinacion], references: [id_coordinacion], onDelete: NoAction, onUpdate: NoAction)

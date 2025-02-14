@@ -83,6 +83,11 @@ const BienesTable: React.FC = () => {
 
   useEffect(() => {
     fetchBienes(page, selectedTipoBien);
+  },[]);
+
+
+  useEffect(() => {
+    fetchBienes(page, selectedTipoBien);
   }, [page, selectedTipoBien, areaId]);
 
   const handleTipoBienChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

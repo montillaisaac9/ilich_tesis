@@ -10,16 +10,16 @@ type WhereInput = {
 
 export async function POST(request: Request) {
   try {
-    const { page, limit, tipoBien, id_coordinacion } = await request.json();
+    
+    const { page, limit, id_coordinacion } = await request.json();
 
-    // Convertir parámetros de paginación
+    console.log( page, limit, id_coordinacion)
     const currentPage = Number(page) || 1;
     const currentLimit = Number(limit) || 10;
 
     // Construir condiciones de filtrado
     const whereCondition: WhereInput = {
       ...(id_coordinacion && { id_coordinacion: Number(id_coordinacion) }),
-      ...(tipoBien && { tipo_bien: tipoBien })
     };
 
     // Obtener datos paginados

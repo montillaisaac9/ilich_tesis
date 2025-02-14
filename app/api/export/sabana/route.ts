@@ -8,20 +8,14 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // 1. Consultar los bienes en la base de datos (solo los campos requeridos)
+
     const bienes = await prisma.bienes.findMany({
-      select: {
-        numero_inventario: true,
-        nombre_bien: true,
-        marca: true,
-        modelo: true,
-        serial: true,
-        caracteristicas: true,
-        estado_bien: true,
-        nombre_empleado: true,
-        fecha_ingreso: true,
-        codigo_color: true,
-        tipo_bien: true
+      include: {
+        coordinaciones: {
+          select: {
+            number_coordinacion: true
+          }
+        }
       }
     });
 
@@ -31,7 +25,7 @@ export async function GET() {
     await workbook.xlsx.readFile(templatePath);
 
     // 3. Seleccionar la hoja "REPORTE"
-    const worksheet = workbook.getWorksheet('REPORTE');
+    const worksheet = workbook.getWorksheet('DESINCORPORACION');
     if (!worksheet) {
       return NextResponse.json(
         { error: 'La hoja REPORTE no se encontró en el template.' },
@@ -39,32 +33,16 @@ export async function GET() {
       );
     }
 
-    // 4. Suponemos que la primera fila es el encabezado.
-    //    Si la plantilla tiene encabezados en la fila 1 y los datos deben ir a partir de la fila 2,
-    //    entonces se conserva la primera fila y se eliminan las demás.
-    const headerRowCount = 1; 
-    const startRow = headerRowCount + 1;
-
-    if (worksheet.rowCount > headerRowCount) {
-      // Se eliminan todas las filas a partir de la fila 2
-      worksheet.spliceRows(startRow, worksheet.rowCount - headerRowCount);
-    }
-
-    // 5. Insertar los nuevos datos usando addRow (se agregarán a partir de la fila 2)
-    bienes.forEach((bien) => {
-      worksheet.addRow([
-        bien.numero_inventario, // Columna A
-        bien.nombre_bien,       // Columna B
-        bien.marca,             // Columna C
-        bien.modelo,            // Columna D
-        bien.serial,            // Columna E
-        bien.caracteristicas,   // Columna F
-        bien.estado_bien,       // Columna G
-        bien.nombre_empleado,   // Columna H
-        bien.fecha_ingreso,     // Columna I
-        bien.codigo_color,      // Columna J
-        bien.tipo_bien          // Columna K
-      ]);
+    const startRow = 8;
+    bienes.forEach((bien, index) => {
+      const row = worksheet.getRow(startRow + index);
+      row.getCell(1).value  = bien.numero_inventario
+      row.getCell(2).value  = bien.nombre_bien
+      row.getCell(3).value  = bien.marca
+      row.getCell(4).value  = bien.modelo
+      row.getCell(5).value  = bien.serial
+      row.getCell(7).value  = bien.caracteristicas
+      row.commit();
     });
 
     // 6. Generar el Excel en memoria
