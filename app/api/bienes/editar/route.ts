@@ -28,7 +28,7 @@ export async function PATCH(request: Request): Promise<Response> {
     const campos = [
       'numero_inventario', 'nombre_bien', 'nombre_empleado', 
       'marca', 'modelo', 'serial', 'caracteristicas', 
-      'codigo_color', 'estado_bien', 'fecha_ingreso', 
+      'codigo_color', 'estado_bien', 
       'tipo_bien', 'id_coordinacion', 'foto1', 'foto2'
     ];
 

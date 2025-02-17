@@ -18,7 +18,6 @@ interface Bien {
   codigo_color?: string;
   estado_bien?: string;
   id_coordinacion?: number | null;
-  fecha_ingreso: string;
 }
 
 type FieldConfig = {
@@ -52,7 +51,6 @@ const BienesForm: React.FC = () => {
     codigo_color: '',
     estado_bien: '',
     id_coordinacion: areaId,
-    fecha_ingreso: '',
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,12 +81,6 @@ const BienesForm: React.FC = () => {
       type: 'text', 
       required: true,
       placeholder: 'Ej: Computadora portátil' 
-    },
-    { 
-      name: 'fecha_ingreso', 
-      label: 'Fecha de Ingreso', 
-      type: 'date', 
-      required: true 
     },
   ];
 
