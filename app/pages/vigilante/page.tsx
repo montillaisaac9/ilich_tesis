@@ -51,7 +51,7 @@ export default function DocsPage() {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Estado de carga
 
-  const handlePreview = (fileId) => {
+  const handlePreview = (fileId: string) => {
     setPreviewUrl(`https://drive.google.com/file/d/${fileId}/preview`);
     setShowModal(true);
   };
@@ -61,7 +61,7 @@ export default function DocsPage() {
     setPreviewUrl("");
   };
 
-  const handleDownload = async (endpoint, filename) => {
+  const handleDownload = async (endpoint: string, filename: string) => {
     setIsLoading(true); // Activar loading
     try {
       const response = await axios.get(endpoint, { responseType: "blob" });

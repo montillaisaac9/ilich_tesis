@@ -51,7 +51,7 @@ export default function DocsPage() {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Estado de carga
 
-  const handlePreview = (fileId) => {
+  const handlePreview = (fileId: string) => {
     setPreviewUrl(`https://drive.google.com/file/d/${fileId}/preview`);
     setShowModal(true);
   };
@@ -61,7 +61,7 @@ export default function DocsPage() {
     setPreviewUrl("");
   };
 
-  const handleDownload = async (endpoint, filename) => {
+  const handleDownload = async (endpoint: string, filename: string) => {
     setIsLoading(true); // Activar loading
     try {
       const response = await axios.get(endpoint, { responseType: "blob" });
@@ -170,12 +170,5 @@ export default function DocsPage() {
         </div>
       )}
     </div>
-  );
-}
-
-// Componente de Spinner
-function LoadingSpinner() {
-  return (
-    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
   );
 }

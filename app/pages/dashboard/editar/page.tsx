@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, FormEvent } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosProgressEvent } from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/authContex';
 
@@ -18,6 +18,8 @@ interface Bien {
   codigo_color?: string;
   estado_bien?: string;
   id_coordinacion?: number | null;
+  foto1?: string;
+  foto2?: string;
 }
 
 type FieldConfig = {
@@ -222,7 +224,7 @@ const BienesForm: React.FC = () => {
     try {
       const response: AxiosResponse<UploadResponse> = await axios.post('/api/upload', fileData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (progressEvent: ProgressEvent) => {
+        onUploadProgress: (progressEvent: AxiosProgressEvent) => {
           const { loaded, total } = progressEvent;
           const percentCompleted = total ? Math.round((loaded * 100) / total) : 0;
           setUploadProgress(prev => ({ ...prev, [field]: percentCompleted }));
