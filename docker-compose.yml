@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-app
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - custom-network
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/mi_basedatos"
+    entrypoint: ["/bin/sh", "-c", "npx prisma generate && npx prisma migrate deploy && node prisma/seed.js && npm run start"]
+    restart: always  # Se reiniciará automáticamente si falla o si la PC se enciende
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - custom-network
+    restart: always  # Se reiniciará automáticamente si falla o si la PC se enciende
+
+networks:
+  custom-network:
+    driver: bridge
+
+volumes:
+  pgdata:

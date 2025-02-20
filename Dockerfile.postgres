@@ -1,0 +1,10 @@
+# Usa la imagen oficial de PostgreSQL 17
+FROM postgres:17
+
+# Establece la contraseña del usuario por defecto
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=cne_db
+
+# Expone el puerto predeterminado de PostgreSQL
+EXPOSE 5432
