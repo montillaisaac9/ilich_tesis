@@ -264,11 +264,8 @@ const BienesForm: React.FC = () => {
               onChange={handletipo_bienChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <option value="bienes">Bienes Tecnológicos</option>
               <option value="uso">Bien en Uso</option>
               <option value="transitorio">Bien Transitorio</option>
-              <option value="resguardo">Bien en Resguardo</option>
-              <option value="desincorporado">Bien Desincorporado</option>
             </select>
           </div>
 

@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Array de coordinaciones usando solo id y nombre
   const coordinations = [
@@ -32,7 +33,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       if (!areaId) {
         setError('Debes seleccionar una coordinación');
@@ -72,11 +73,20 @@ export default function LoginPage() {
       if (err.status === 401) setError("Coordinación no válida para este usuario");
       if (err.status === 404) setError("Credenciales Incorrectas");
       if (err.status === 500) setError("Error en el servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
+    
     <div className="min-h-screen w-screen flex flex-col items-center justify-center p-4">
+            {loading ? (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="border-t-4 border-blue-500 border-solid w-16 h-16 rounded-full animate-spin"></div>
+          <p className="text-white ml-4">Cargando...</p>
+        </div>
+      ) : null}
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
           <Image
